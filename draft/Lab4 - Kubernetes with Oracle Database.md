@@ -130,7 +130,7 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
    $ cd /home/opc/oracle-db-operator
    ```
 
-2. Edit the *init.ora* file, modify all the *<ORACLE_BASE>* to */opt/oracle*.
+2. Modify the configure files for the configmap. First edit the *init.ora* file, modify all the *<ORACLE_BASE>* to */opt/oracle*.
 
    ```
    $ vi examples/database/configmaps/init.ora
@@ -354,26 +354,287 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
    $ cd /home/opc/oracle-db-operator
    ```
 
-2. sadf
+2. Modify the configure files for the configmap. First edit the *apex.xml* file.
 
-3. sdf
+   ```
+   $ vi ./examples/ords/configmaps/apex.xml
+   ```
 
-4. sdaf
+   modify the ```##ORDS_PASSWORD##``` to ```Welcome_123#```.
 
-5. sadf
+   The file looks like:
 
-6. sdaf
+   ```
+   <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+   <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+   <properties>
+   <comment>Saved on Fri Aug 23 11:24:16 GMT 2019</comment>
+   <entry key="db.password">!Welcome_123#</entry>
+   <entry key="db.username">ORDS_PUBLIC_USER</entry>
+   
+   </properties>
+   ```
 
-7. sadf
+3. Edit the *apex_pu.xml* file.
 
-8. sadf
+   ```
+   $ vi ./examples/ords/configmaps/apex_pu.xml
+   ```
 
-9. sdf
+   change all ```##ORDS_PASSWORD##``` to ```Welcome_123#```.
 
-10. sdaf
+   The file looks like:
 
-11. asdf
+   ```
+   <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+   <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+   <properties>
+   <comment>Saved on Mon Aug 26 11:22:54 GMT 2019</comment>
+   <entry key="db.cdb.adminUser">C##DBAPI_CDB_ADMIN as SYSDBA</entry>
+   <entry key="db.cdb.adminUser.password">!Welcome_123#</entry>
+   <entry key="db.password">!Welcome_123#</entry>
+   <entry key="db.username">ORDS_PUBLIC_USER</entry>
+   </properties>
+   ```
 
-12. sadf
+4. Edit the *defaults.xml* file.
 
-13. 
+   ```
+   vi ./examples/ords/configmaps/defaults.xml
+   ```
+
+   - change ```##ORDS_PASSWORD##``` to ```Welcome_123#```.
+   - change hostname from ```oracle-db-enterprise``` to ```oracle-db-enterprise-1```
+   - change ```##DATABASE_CDB_SERVICE_NAME##``` to ```ORCL```.
+
+   The file looks like:
+
+   ```
+   <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+   <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+   <properties>
+   <comment>Saved on Mon Aug 26 11:24:32 GMT 2019</comment>
+   <entry key="database.api.admin.enabled">true</entry>
+   <entry key="database.api.enabled">true</entry>
+   <entry key="db.cdb.adminUser">C##DBAPI_CDB_ADMIN as SYSDBA</entry>
+   <entry key="db.cdb.adminUser.password">!Welcome_123#</entry>
+   <entry key="db.hostname">oracle-db-enterprise-1</entry>
+   <entry key="db.port">1521</entry>
+   <entry key="db.servicename">ORCL</entry>
+   <entry key="jdbc.DriverType">thin</entry>
+   <entry key="jdbc.InactivityTimeout">1800</entry>
+   <entry key="jdbc.InitialLimit">3</entry>
+   <entry key="jdbc.MaxConnectionReuseCount">1000</entry>
+   <entry key="jdbc.MaxLimit">10</entry>
+   <entry key="jdbc.MaxStatementsLimit">10</entry>
+   <entry key="jdbc.MinLimit">1</entry>
+   <entry key="jdbc.auth.enabled">true</entry>
+   <entry key="jdbc.statementTimeout">900</entry>
+   <entry key="log.logging">false</entry>
+   <entry key="log.maxEntries">50</entry>
+   <entry key="debug.debugger">true</entry>
+   <entry key="debug.printDebugToScreen">true</entry>
+   <entry key="misc.compress"/>
+   <entry key="misc.defaultPage">apex</entry>
+   <entry key="security.disableDefaultExclusionList">false</entry>
+   <entry key="security.maxEntries">2000</entry>
+   <entry key="security.validationFunctionType">plsql</entry>
+   </properties>
+   ```
+
+5. Edit the *credentials* file.
+
+   ```
+   vi ./examples/ords/configmaps/credentials
+   ```
+
+   Copy the credentials content generate in Append4 using password "Welcome_123#".
+
+   The file looks like:
+
+   ```
+   admin;{SSHA-512}6gdCe3LYEBl7KLozs6ERYctHGpj5pp/xDCm6nL5gFlTL6rkZNa2cZEJhiNgG/ODFEC28yfRdwectwnbukSzkpkybDHBpatyT;SQL Administrator,System Administrator
+   ```
+
+6. Run the following command to create configmap
+
+   ```
+   $ kubectl create configmap oracle-db-ords-config --from-file=examples/ords/configmaps/
+   ```
+
+7. Edit ords-persistent-storage.yaml file
+
+   ```
+   $ vi examples/ords/ords-persistent-storage.yaml
+   ```
+
+   Change the *storageClassName* to *oci*, the file looks like:
+
+   ```
+   apiVersion: v1
+   kind: PersistentVolumeClaim
+   metadata:
+     name: oracleclaim-ords-config
+   spec:
+     storageClassName: "oci"
+     accessModes:
+       - ReadWriteOnce
+     resources:
+       requests:
+         storage: 1Gi
+   ```
+
+8. Deploy the Persistent Volume.
+
+   ```
+   $ kubectl apply -f examples/ords/ords-persistent-storage.yaml
+   ```
+
+9. Edit *ords-deployment.yaml* file.
+
+   ```
+   $ vi examples/ords/ords-deployment.yaml
+   ```
+
+   - change image from ```##DOCKER_REGISTRY##/restdataservices:19.2.0.2``` to ``` minqiao/restdataservices:19.2.0```
+   - change Oracle Host from ```oracle-db``` to ```oracle-db-enterprise-1```
+   - change Oracle Service from ```ORCLCDB``` to ```ORCL```
+   - change Oracle PWD from ```##DB_PASSWORD##``` to ```Welcome_123#```
+   - change ORDS PWD from ```##ORDS_PASSWORD##``` to ```Welcome_123#```
+   - change port from ```8080``` to ```8888```
+
+   The file looks like:
+
+   ```
+   apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+   kind: Deployment
+   metadata:
+     name: oracle-db-ords
+   spec:
+     replicas: 1
+     minReadySeconds: 30
+     selector:
+       matchLabels:
+         app: oracle-db-ords
+     template:
+       metadata:
+         labels:
+           app: oracle-db-ords
+       spec:
+         containers:
+           - name: oracle-db-ords
+             image: minqiao/restdataservices:19.2.0
+             ports:
+               - containerPort: 8888
+             livenessProbe:
+               tcpSocket:
+                 port: 8888
+               initialDelaySeconds: 60
+               periodSeconds: 30
+             env:
+               - name: ORACLE_HOST
+                 value: oracle-db-enterprise-1
+               - name: ORACLE_SERVICE
+                 value: ORCL
+               - name: ORACLE_PWD
+                 value: Welcome_123#
+               - name: ORDS_PWD
+                 value: Welcome_123#
+               - name: ORACLE_BASE
+                 value: /opt/oracle/
+             volumeMounts:
+               - name: oracle-db-ords-config-persistent
+                 mountPath: "/opt/oracle/ords/config/ords"
+   
+         initContainers:
+           - name: setup-configs
+             command: ["sh", "-c", "cp /conf/apex_pu.xml /apex_pu.xml && mkdir -p /opt/oracle/ords/config/ords/conf/ && cp /conf/apex_pu.xml /opt/oracle/ords/config/ords/conf/apex_pu.xml && cp /conf/apex.xml /opt/oracle/ords/config/ords/conf/apex.xml && cp /conf/credentials /opt/oracle/ords/config/ords/credentials && cp /conf/defaults.xml /opt/oracle/ords/config/ords/defaults.xml && chown -R 54321:54321 /opt/oracle/ords/config/ords"]
+             image: busybox
+             volumeMounts:
+               - name: oracle-db-ords-config
+                 mountPath: "/conf"
+               - name: oracle-db-ords-config-persistent
+                 mountPath: "/opt/oracle/ords/config/ords"
+         imagePullSecrets:
+           - name: ##DOCKER_SECRET##
+   
+         volumes:
+           - name: oracle-db-ords-config
+             configMap:
+               name: oracle-db-ords-config
+           - name: oracle-db-ords-config-persistent
+             persistentVolumeClaim:
+               claimName: oracleclaim-ords-config
+   
+   ---
+   apiVersion: v1
+   kind: Service
+   metadata:
+     name: oracle-db-ords
+   spec:
+     ports:
+       - port: 8888
+         targetPort: 8888
+         protocol: TCP
+     selector:
+       app: oracle-db-ords
+   ```
+
+10. Deploy the ORDS.
+
+    ```
+    $ kubectl apply -f examples/ords/ords-deployment.yaml
+    ```
+
+11. List the pods.
+
+    ```
+    $ kubectl get pod
+    NAME                                           READY   STATUS             RESTARTS   AGE
+    oracle-db-enterprise-bc7dc67cd-g45mc           1/1     Running            0          171m
+    oracle-db-ords-f666954f5-cq9mk                 1/1     Running            0          115s
+    ```
+
+12. Check the log. **control-c** to exist.
+
+    ```
+    $ kubectl logs -f oracle-db-ords-f666954f5-cq9mk
+    ```
+
+13. Edit *ords-credentials.yaml* file. Use base64 encode the username and password.
+
+    ```
+    $ echo admin|base64
+    YWRtaW4K
+    $ echo Welcome_123#|base64
+    V2VsY29tZV8xMjMjCg==
+    $ vi examples/ords/ords-credentials.yaml
+    ```
+
+    Change the username and password using the base64 result. The file looks like:
+
+    ```
+    ---
+    kind: Secret
+    apiVersion: v1
+    metadata:
+      name: oracle-ords-credentials
+      namespace: default
+    data:
+      username: YWRtaW4K
+      password: V2VsY29tZV8xMjMjCg==
+    type: Opaque
+    ```
+
+14. Deploy the credentials:
+
+    ```
+    $ kubectl apply -f examples/ords/ords-credentials.yaml
+    ```
+
+    
+
+15. sadf
+
+16. klklkl
+
