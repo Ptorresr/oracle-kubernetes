@@ -90,18 +90,18 @@ Now, the Oracle Connection Manager image is ready.
 3. Execute following command  to create connection manager container using the remote repositroy with your own account: *your-dockerhub-account/image-name:tag*
 
    ```
-   docker run -d --hostname db-cman1 --dns-search=example.com \
+   docker run -d --hostname cman1 --dns-search=example.com \
    --network=db_pub1_nw --ip=172.16.1.15 \
    -e DOMAIN=example.com -e PUBLIC_IP=172.16.1.15 \
    -e PUBLIC_HOSTNAME=cman1 \
    --privileged=false \
-   -p 1521:1521 --name dbnode-cman minqiao/cman:19.3.0
+   -p 1521:1521 --name cman minqiao/cman:19.3.0
    ```
 
 4. To check the Cman container/services creation logs , please tail docker logs. It will take 5 minutes to create the Cman container service.
 
    ```
-   docker logs --follow dbnode-cman
+   docker logs --follow cman
    ```
 
    You should see following when cman container setup is done:  Press **control-c** to continue.
@@ -118,21 +118,21 @@ Now, the Oracle Connection Manager image is ready.
    ```
    [opc@oke-bastion 19.3.0]$ docker container ls
    CONTAINER ID        IMAGE                 COMMAND                  CREATED             STATUS              PORTS                              NAMES
-   4b308111d855        minqiao/cman:19.3.0   "/bin/sh -c 'exec $S…"   8 minutes ago       Up 8 minutes        0.0.0.0:1521->1521/tcp, 5500/tcp   dbnode-cman
+   4b308111d855        minqiao/cman:19.3.0   "/bin/sh -c 'exec $S…"   8 minutes ago       Up 8 minutes        0.0.0.0:1521->1521/tcp, 5500/tcp   cman
    [opc@oke-bastion 19.3.0]$
    ```
 
 6. Login to the container:
 
    ```
-   [opc@oke-bastion ~]$ docker exec -it dbnode-cman bash
-   [oracle@db-cman1 ~]$
+   [opc@oke-bastion ~]$ docker exec -it cman bash
+   [oracle@cman1 ~]$
    ```
 
 7. Check the CMAN status and exit.
 
    ```
-   [oracle@db-cman1 ~]$ cmctl show status -c CMAN_cman1.example.com
+   [oracle@cman1 ~]$ cmctl show status -c CMAN_cman1.example.com
    
    CMCTL for Linux: Version 19.0.0.0.0 - Production on 18-MAR-2020 01:16:51
    

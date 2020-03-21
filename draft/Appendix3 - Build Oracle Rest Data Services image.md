@@ -131,18 +131,24 @@ Now, the Oracle Rest Data Services image is ready.
    [oracle@0868f7e6b836 ~]$
    ```
 
-5. Generate the password for the credentials file
+5. Generate the password for the credentials file, use the password: *Welcome_123#*.
 
    ```
+   [oracle@0868f7e6b836 ~]$ cd /opt/oracle/ords/
+   [oracle@0868f7e6b836 ords]$ java -jar ords.war user admin "SQL Administrator,System Administrator"
+   Enter a password for user admin: 
+   Confirm password for user admin: 
+   Mar 20, 2020 6:01:03 AM oracle.dbtools.standalone.ModifyUser execute
+   INFO: Created user: admin in file: /opt/oracle/ords/config/ords/credentials
+   [oracle@0868f7e6b836 ords]$ cat /opt/oracle/ords/config/ords/credentials
+   admin;{SSHA-512}6gdCe3LYEBl7KLozs6ERYctHGpj5pp/xDCm6nL5gFlTL6rkZNa2cZEJhiNgG/ODFEC28yfRdwectwnbukSzkpkybDHBpatyT;SQL Administrator,System Administrator
+   [oracle@0868f7e6b836 ords]$ 
+   ```
+
+6. Copy the content in the /opt/oracle/ords/config/ords/credentials, this will used in Lab4
+
+   ```
+   admin;{SSHA-512}6gdCe3LYEBl7KLozs6ERYctHGpj5pp/xDCm6nL5gFlTL6rkZNa2cZEJhiNgG/ODFEC28yfRdwectwnbukSzkpkybDHBpatyT;SQL Administrator,System Administrator
+   ```
+
    
-   ```
-
-6. sdaf
-
-7. sdaf
-
-8. sdf
-
-9. sdf
-
-10. sad

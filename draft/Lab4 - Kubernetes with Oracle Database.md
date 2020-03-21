@@ -133,7 +133,7 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 2. Modify the configure files for the configmap. First edit the *init.ora* file, modify all the *<ORACLE_BASE>* to */opt/oracle*.
 
    ```
-   $ vi examples/database/configmaps/init.ora
+   $ vi ./examples/database/configmaps/init.ora
    ```
 
    It's looks like the following, save the file.
@@ -165,8 +165,11 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 3. Edit the *init.ora* file, modify the *\##ORDS_PASSWORD* to *Welcome_123#*.
 
    ```
-   vi examples/database/configmaps/init.sql
+   vi ./examples/database/configmaps/init.sql
    ```
+
+   - change ```##ORDS_PASSWORD``` to ```Welcome_123#```.
+   - change remote_listener from ```oracle-db-connection-manager-servic:1521``` to ```listener_cman```
 
    It's looks like the following, save the file.
 
@@ -177,14 +180,14 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
    GRANT connect  TO C##DBAPI_CDB_ADMIN CONTAINER = ALL;
    
    -- CONNECTION TO CONNECTION MANAGER
-   alter system  set remote_listener='oracle-db-connection-manager-service:1521' scope=both sid='*';
+   alter system  set remote_listener='listener_cman' scope=both sid='*';
    alter system register;
    ```
 
 4. Edit the *tnsnames.ora* file
 
    ```
-   $ vi examples/database/configmaps/tnsnames.ora
+   $ vi ./examples/database/configmaps/tnsnames.ora
    ```
 
    - change ORCLCDB to ORCL
@@ -215,18 +218,76 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 6. Edit the *oracle-db-deployment.yaml* file, 
 
    ```
-   $ vi examples/database/oracle-db-deployment.yaml
+   $ vi ./examples/database/oracle-db-deployment.yaml
    ```
 
    - change ```##DOCKER_REGISTRY##/oracle-db:19.3.0.0 ``` to ```minqiao/database:19.3.0-ee```
-
    - change SID  ```value: "ORCLCDB"``` to ```value: "ORCL"```
-
    - change PDB ```value: "ORCLPDB1"``` to ```value: "PDB1"```
-
    - change PWD ```##ORACLE_SYS_PASSWORD##``` to ```Welcome_123#```
+   - change service name from ```oracle-db-enterprise-1``` to ```oracle-db-enterprise```
 
-     
+   The file looks like:
+
+   ```
+   apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+   kind: Deployment
+   metadata:
+     name: oracle-db-enterprise
+   spec:
+     replicas: 1
+     minReadySeconds: 30
+     selector:
+       matchLabels:
+         app: oracle-db-enterprise
+     template:
+       metadata:
+         labels:
+           app: oracle-db-enterprise
+       spec:
+         hostname: oracle-db-enterprise
+         containers:      
+         - name: oracle-db-enterprise
+           image: minqiao/database:19.3.0-ee
+           env:
+           - name: ORACLE_SID
+             value: "ORCL"
+           - name: ORACLE_PDB
+             value: "PDB1"
+           - name: ORACLE_PWD
+             value: "Welcome_123#"
+           volumeMounts:
+           - name: oracle-db-config
+             mountPath: /opt/oracle/scripts/setup
+           ports:
+           - containerPort: 1521
+           livenessProbe:
+             tcpSocket:
+               port: 1521
+             initialDelaySeconds: 300
+             periodSeconds: 30
+         imagePullSecrets:
+           - name: ##DOCKER_SECRET##
+         volumes:
+           - name: oracle-db-config
+             configMap:
+               name: oracle-db-config
+   
+   ---
+   apiVersion: v1
+   kind: Service
+   metadata:
+     name: oracle-db-enterprise
+   spec:
+     ports:
+     - port: 1521
+       targetPort: 1521
+       protocol: TCP
+     selector:
+       app: oracle-db-enterprise
+   ```
+
+   
 
 7. Deploy the Oracle Database
 
@@ -234,22 +295,22 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
    $ kubectl apply -f examples/database/oracle-db-deployment.yaml
    ```
 
-8. List the pod
+8. List the pods
 
    ```
-   [opc@oke-bastion oracle-db-operator]$ kubectl get pod
+   $ kubectl get pod
    NAME                                           READY   STATUS              RESTARTS   AGE
    oracle-db-connection-manager-d474757ff-rhs98   1/1     Running             10         38m
    oracle-db-enterprise-8d67f7cbb-c78c2           0/1     ContainerCreating   0          17s
    ```
 
-9. It's need some time to download the container image. List the pods again, when the STATUS change to Running, you can check the log.
+9. It's need some time to download the container image for the first time. List the pods again, when the STATUS change to Running, you can check the log.
 
    ```
    $ kubectl logs -f oracle-db-enterprise-8d67f7cbb-c78c2
    ```
 
-   The inital database setup will take abourt 15 minutes if you encounter the *error: unexpected EOF*, try to re-enter the log check.
+   The database setup will take about 15 minutes, if you encounter the *error: unexpected EOF*, try to re-enter the log check.
 
 10. When the database creationg is complete, you may see **The Database is Ready to Use**.  Ignore the ERROR: ORA-01920. Press **control-c** to continue. 
 
@@ -404,7 +465,6 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
    ```
 
    - change ```##ORDS_PASSWORD##``` to ```Welcome_123#```.
-   - change hostname from ```oracle-db-enterprise``` to ```oracle-db-enterprise-1```
    - change ```##DATABASE_CDB_SERVICE_NAME##``` to ```ORCL```.
 
    The file looks like:
@@ -418,7 +478,7 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
    <entry key="database.api.enabled">true</entry>
    <entry key="db.cdb.adminUser">C##DBAPI_CDB_ADMIN as SYSDBA</entry>
    <entry key="db.cdb.adminUser.password">!Welcome_123#</entry>
-   <entry key="db.hostname">oracle-db-enterprise-1</entry>
+   <entry key="db.hostname">oracle-db-enterprise</entry>
    <entry key="db.port">1521</entry>
    <entry key="db.servicename">ORCL</entry>
    <entry key="jdbc.DriverType">thin</entry>
@@ -465,7 +525,7 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 7. Edit ords-persistent-storage.yaml file
 
    ```
-   $ vi examples/ords/ords-persistent-storage.yaml
+   $ vi ./examples/ords/ords-persistent-storage.yaml
    ```
 
    Change the *storageClassName* to *oci*, the file looks like:
@@ -493,11 +553,10 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 9. Edit *ords-deployment.yaml* file.
 
    ```
-   $ vi examples/ords/ords-deployment.yaml
+   $ vi ./examples/ords/ords-deployment.yaml
    ```
 
    - change image from ```##DOCKER_REGISTRY##/restdataservices:19.2.0.2``` to ``` minqiao/restdataservices:19.2.0```
-   - change Oracle Host from ```oracle-db``` to ```oracle-db-enterprise-1```
    - change Oracle Service from ```ORCLCDB``` to ```ORCL```
    - change Oracle PWD from ```##DB_PASSWORD##``` to ```Welcome_123#```
    - change ORDS PWD from ```##ORDS_PASSWORD##``` to ```Welcome_123#```
@@ -533,7 +592,7 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
                periodSeconds: 30
              env:
                - name: ORACLE_HOST
-                 value: oracle-db-enterprise-1
+                 value: oracle-db-enterprise
                - name: ORACLE_SERVICE
                  value: ORCL
                - name: ORACLE_PWD
@@ -595,11 +654,24 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
     oracle-db-ords-f666954f5-cq9mk                 1/1     Running            0          115s
     ```
 
-12. Check the log. **control-c** to exist.
+12. Check the log. 
 
     ```
     $ kubectl logs -f oracle-db-ords-f666954f5-cq9mk
     ```
+
+    When you see the following message, the ORDS is ready, press **control-c** to exist.
+
+    ```
+    2020-03-21 04:02:25.668:INFO:oejsh.ContextHandler:main: Started o.e.j.s.ServletContextHandler@1d057a39{/ords,null,AVAILABLE}
+    2020-03-21 04:02:25.673:INFO:oejsh.ContextHandler:main: Started o.e.j.s.h.ContextHandler@464bee09{/,null,AVAILABLE}
+    2020-03-21 04:02:25.673:INFO:oejsh.ContextHandler:main: Started o.e.j.s.h.ContextHandler@f6c48ac{/i,null,AVAILABLE}
+    2020-03-21 04:02:25.683:INFO:oejs.RequestLogWriter:main: Opened /tmp/ords_log/ords_2020_03_21.log
+    2020-03-21 04:02:25.705:INFO:oejs.AbstractConnector:main: Started ServerConnector@20fa2d13{HTTP/1.1,[http/1.1, h2c]}{0.0.0.0:8888}
+    2020-03-21 04:02:25.710:INFO:oejs.Server:main: Started @9251ms
+    ```
+
+    
 
 13. Edit *ords-credentials.yaml* file. Use base64 encode the username and password.
 
@@ -608,7 +680,7 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
     YWRtaW4K
     $ echo Welcome_123#|base64
     V2VsY29tZV8xMjMjCg==
-    $ vi examples/ords/ords-credentials.yaml
+    $ vi ./examples/ords/ords-credentials.yaml
     ```
 
     Change the username and password using the base64 result. The file looks like:
@@ -636,5 +708,194 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 
 15. sadf
 
-16. klklkl
+    
+
+    
+
+    
+
+## Deploy Oracle Database Operator
+
+1. In the bastion host. Make sure you are under the right directory
+
+   ```
+   $ cd /home/opc/oracle-db-operator
+   ```
+
+2. Modify the ```operator-k8s.yaml file```
+
+   ```
+   $ vi ./manifest/operator-k8s.yaml
+   ```
+
+   - change ```##DOCKER_REGISTY##``` to ```minqiao```
+   - change ```##PDBNAME##``` to ```mypdb```.
+   - change port from ```8080``` to ```8888```
+   - change ```oracle-db-connection-manager-service``` to ```oracle-db-enterprise``` (Currently my CMAN not work in kubernetes)
+
+   The file looks like:
+
+   ```
+   # for creating these resources it requires the user to be logged in as system admin
+   apiVersion: v1
+   kind: ServiceAccount
+   metadata:
+     name: oracle-db-operator
+   ---
+   apiVersion: rbac.authorization.k8s.io/v1beta1
+   kind: ClusterRoleBinding
+   metadata:
+     name: oracle-db-operator-edit-resources
+   roleRef:
+     kind: ClusterRole
+     name: cluster-admin
+     apiGroup: ""
+   subjects:
+     - kind: ServiceAccount
+       name: oracle-db-operator
+       namespace: default
+   ---
+   apiVersion: apps/v1
+   kind: Deployment
+   metadata:
+     name: oracle-db-operator
+     labels: &default-labels
+       app.kubernetes.io/name: oracle-db-operator
+       app.kubernetes.io/version: v0.0.1-v1alpha1
+   spec:
+     replicas: 1
+     selector:
+       matchLabels: *default-labels
+     strategy:
+       type: Recreate
+     template:
+       metadata:
+         labels: *default-labels
+       spec:
+         serviceAccountName: oracle-db-operator
+         containers:
+         - name: oracle-db-operator
+           image: minqiao/oracle-db-operator:1.0.4
+           env:
+           - name: CRD
+             value: "true"
+           - name: ORDS_HOST
+             value: "oracle-db-ords"
+           - name: ORDS_BASEPATH
+             value: "/ords"
+           - name: ORDS_PORT
+             value: "8888"
+           - name: ORDS_PROTOCOL
+             value: "http"
+           - name: ORDS_CREDENTIAL_SECRET_NAME
+             value: "oracle-ords-credentials"
+           - name: OCM_SERVICE_NAME
+             value: "oracle-db-enterprise"
+           - name: OCM_SERVICE_PORT
+             value: "1521"
+           - name: DB_FILENAME_CONVERSION_PATTERN
+             value: "('/opt/oracle/oradata/ORCLCDB/pdbseed/','/opt/oracle/oradata/ORCLCDB/mypdb/')"
+           imagePullPolicy: Always
+         imagePullSecrets:
+           - name: ##DOCKER_SECRET##
+   ```
+
+   
+
+3. Deploy the Oracle Database Operator
+
+   ```
+   $ kubectl apply -f manifest/operator-k8s.yaml
+   ```
+
+4. List the pod
+
+   ```
+   $ kubectl get pod
+   NAME                                           READY   STATUS             RESTARTS   AGE
+   oracle-db-enterprise-85bd744d59-fg7ml          1/1     Running            0          4h28m
+   oracle-db-operator-7bd7d5bfbc-w2w87            1/1     Running            0          111s
+   oracle-db-ords-f666954f5-92ls4                 1/1     Running            0          149m
+   ```
+
+5. check the log, 
+
+   ```
+   $ kubectl logs -f oracle-db-operator-7bd7d5bfbc-w2w87
+   ```
+
+   You may see the message like the following, Press **control-c** to exist.
+
+   ```
+   2020-03-21 06:28:52 INFO  Entrypoint:236 - 
+   Operator has started in version 0.0.1-SNAPSHOT.
+   ```
+
+   
+
+6. sadf
+
+   
+
+
+
+## Provision your database
+
+1. In the bastion host. Make sure you are under the right directory
+
+   ```
+   $ cd /home/opc/oracle-db-operator
+   ```
+
+2. Modify the *cr.yaml* file.
+
+   ```
+   $ vi ./examples/cr.yaml
+   ```
+
+   Change name from ```my-db``` to ```mypdb``` The file looks like:
+
+   ```
+   apiVersion: com.oracle/v1
+   kind: OracleService
+   metadata:
+     name: mypdb
+   spec:
+     storage: 1000000000
+     tempStorage: 10000000
+   ```
+
+   
+
+3. asdf
+
+4. sdaf
+
+5. sadf
+
+6. asdf
+
+7. asdf
+
+8. asdf
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
