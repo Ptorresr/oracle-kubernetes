@@ -96,8 +96,8 @@ Now, the Oracle Rest Data Services image is ready.
    -e ORACLE_HOST=172.16.1.2 \
    -e ORACLE_PORT=1521 \
    -e ORACLE_SERVICE=ORCL \
-   -e ORACLE_PWD=Welcome_123# \
-   -e ORDS_PWD=Welcome_123# \
+   -e ORACLE_PWD=WElcome_123# \
+   -e ORDS_PWD=WElcome_123# \
    -v /home/opc/ords:/opt/oracle/ords/config/ords \
    minqiao/restdataservices:19.2.0
    ```
@@ -131,7 +131,7 @@ Now, the Oracle Rest Data Services image is ready.
    [oracle@0868f7e6b836 ~]$
    ```
 
-5. Generate the password for the credentials file, use the password: *Welcome_123#*.
+5. Generate the password for the credentials file, use the password: *WElcome_123#*.
 
    ```
    [oracle@0868f7e6b836 ~]$ cd /opt/oracle/ords/

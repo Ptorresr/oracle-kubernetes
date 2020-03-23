@@ -105,7 +105,7 @@ Now, the database image is ready.
    -p 1521:1521 -p 5500:5500 \
    -e ORACLE_SID=ORCL \
    -e ORACLE_PDB=PDB1 \
-   -e ORACLE_PWD=Welcome_123# \
+   -e ORACLE_PWD=WElcome_123# \
    -e ORACLE_CHARACTERSET=AL32UTF8 \
    -v /home/opc/oradata:/opt/oracle/oradata \
    minqiao/database:19.3.0-ee
@@ -189,7 +189,7 @@ Now, the database image is ready.
    Service "pdb1" has 1 instance(s).
      Instance "ORCL", status READY, has 1 handler(s) for this service...
    The command completed successfully
-   [oracle@dbhost ~]$ sqlplus system/Welcome_123#@dbhost:1521/pdb1
+   [oracle@dbhost ~]$ sqlplus system/WElcome_123#@dbhost:1521/pdb1
    
    SQL*Plus: Release 19.0.0.0.0 - Production on Tue Mar 17 12:34:04 2020
    Version 19.3.0.0.0

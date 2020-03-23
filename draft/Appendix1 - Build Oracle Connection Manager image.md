@@ -87,13 +87,14 @@ Now, the Oracle Connection Manager image is ready.
    docker network create --driver=bridge --subnet=172.16.1.0/24 db_pub1_nw
    ```
    
-3. Execute following command  to create connection manager container using the remote repositroy with your own account: *your-dockerhub-account/image-name:tag*
+2. Execute following command  to create connection manager container using the remote repositroy with your own account: *your-dockerhub-account/image-name:tag*
 
    ```
    docker run -d --hostname cman1 --dns-search=example.com \
    --network=db_pub1_nw --ip=172.16.1.15 \
    -e DOMAIN=example.com -e PUBLIC_IP=172.16.1.15 \
    -e PUBLIC_HOSTNAME=cman1 \
+   -e SCAN_IP=172.16.1.2 -e SCAN_NAME=dbhost
    --privileged=false \
    -p 1521:1521 --name cman minqiao/cman:19.3.0
    ```
