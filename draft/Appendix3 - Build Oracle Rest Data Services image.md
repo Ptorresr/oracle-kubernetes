@@ -141,14 +141,14 @@ Now, the Oracle Rest Data Services image is ready.
    Mar 20, 2020 6:01:03 AM oracle.dbtools.standalone.ModifyUser execute
    INFO: Created user: admin in file: /opt/oracle/ords/config/ords/credentials
    [oracle@0868f7e6b836 ords]$ cat /opt/oracle/ords/config/ords/credentials
-   admin;{SSHA-512}6gdCe3LYEBl7KLozs6ERYctHGpj5pp/xDCm6nL5gFlTL6rkZNa2cZEJhiNgG/ODFEC28yfRdwectwnbukSzkpkybDHBpatyT;SQL Administrator,System Administrator
+   admin;{SSHA-512}I9yp9gOvNtML/DfGkz2XHqb/lXbmeryleCLRGPdoDG1r67dKDPxPosgeG57Y08iDbT7JMnmxXNxz3QTAZzgu95fKBqx2P/wx;SQL Administrator,System Administrator
    [oracle@0868f7e6b836 ords]$ 
    ```
 
 6. Copy the content in the /opt/oracle/ords/config/ords/credentials, this will used in Lab4
 
    ```
-   admin;{SSHA-512}6gdCe3LYEBl7KLozs6ERYctHGpj5pp/xDCm6nL5gFlTL6rkZNa2cZEJhiNgG/ODFEC28yfRdwectwnbukSzkpkybDHBpatyT;SQL Administrator,System Administrator
+   admin;{SSHA-512}I9yp9gOvNtML/DfGkz2XHqb/lXbmeryleCLRGPdoDG1r67dKDPxPosgeG57Y08iDbT7JMnmxXNxz3QTAZzgu95fKBqx2P/wx;SQL Administrator,System Administrator
    ```
 
    
