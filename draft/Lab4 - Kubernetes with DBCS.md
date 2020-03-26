@@ -1,4 +1,4 @@
-# Deploy ORDS with DBCS
+# Kubernetes with Oracle DBCS
 
 This lab show you a seamless integration between an application deployed inside the kubernetes cluster and an oracle database.
 
@@ -16,27 +16,19 @@ A full architecture could be the one presented in this diagram:
 
 ## Deploy Oracle DBCS on OCI
 
-1. ------In the OCI Console, Create a new private subnet 10.0.30.0/24 in the same VCN of the kubernetes cluster, with new security list, add ingress rule to open port 22, 1521.
+**(Note: Create a DBCS in the separate private subnet need to set the correct security list, ingress rule and NAT. SO for the easy of configure in the following steps, we will the same private network which used by  kubernetes cluster)**
 
-   
-   
-2. ------Provisioning a DBCS named ORCL with PDB named pdb1.
+1. (**Not use**)In the OCI Console, Create a new private subnet 10.0.30.0/24 in the same VCN of the kubernetes cluster, with new security list, add ingress rule to open port 22, 1521. route table to NAT.
 
-   
-   
-   Write down the DBCS private ip address like *10.0.30.2*
+ 
 
-   DB Hostname: *dbhost.dbprivatesubnet.mycluster.oraclevcn.com*
+ 
 
-   CDB service: *ORCL_nrt1b7.dbprivatesubnet.mycluster.oraclevcn.com*
-   
-   PDB service: *pdb1.dbprivatesubnet.mycluster.oraclevcn.com*
-   
-   
+2. Create a DBCS VM into the exist private subnet: oke-subnet-quick-mycluster...
 
-1. Create a DBCS into the exist private subnet: oke-subnet-quick-mycluster...
+3. Write down the DBCS information like:
 
-2. Write down the DBCS private ip address like *10.0.10.5*
+   Private IP address: *10.0.10.5*
 
    DB Hostname: *dbcs.sub981952be8.mycluster.oraclevcn.com*
 
@@ -44,7 +36,7 @@ A full architecture could be the one presented in this diagram:
 
    PDB service: *pdb1.sub981952be8.mycluster.oraclevcn.com*
 
-3. jk
+   
 
    
 
@@ -72,9 +64,16 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
    ```
 
    - Change the container image from ```DOCKER_REPO/cman:19.3.0.0``` to ```minqiao/cman:19.3.0```. Ad
-   - Change PUBLIC_IP and PUBLIC_HOSTNAME to the dynamic value when the pod startup.
-   - ------ Change SCAN_NAME and SCAN_IP to the DBCS hostname and IP address.
-   - add the pod service type: LoadBalancer, so the DBCS can be used to register.
+
+   - Change PUBLIC_IP and PUBLIC_HOSTNAME to the dynamic value when the pod startup. Please refer the following file content.
+
+   - Change SCAN_NAME and SCAN_IP to the DBCS hostname without domain(**dbcs**) and IP address(**10.0.10.5**).
+
+   - Add the pod service type: LoadBalancer, so the Public IP can be used by DBCS  to register.
+
+     
+
+   The file looks like this:
 
    ```
    apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
@@ -173,26 +172,17 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
    - External-IP: 168.138.220.146
 
    ```
-   $ kubectl get all
-   NAME                                               READY   STATUS    RESTARTS   AGE
-   pod/oracle-db-connection-manager-9cf4bc654-vpmbd   1/1     Running   0          5m36s
-   
+   $ kubectl get service
    NAME                                           TYPE           CLUSTER-IP     EXTERNAL-IP       PORT(S)          AGE
    service/kubernetes                             ClusterIP      10.96.0.1      <none>            443/TCP          8d
    service/oracle-db-connection-manager-service   LoadBalancer   10.96.61.86    168.138.220.146   1521:31388/TCP   5m36s
-   
-   NAME                                           READY   UP-TO-DATE   AVAILABLE   AGE
-   deployment.apps/oracle-db-connection-manager   1/1     1            1           5m36s
-   
-   NAME                                                     DESIRED   CURRENT   READY   AGE
-   replicaset.apps/oracle-db-connection-manager-9cf4bc654   1         1         1       5m36s
    ```
 
    
 
 ## Register DBCS to the CMAN
 
-1. Install Oracle Instant Client in the bastion host:
+1. From bastion host, Install Oracle Instant Client in the bastion:
 
    ```
    $ sudo yum install oracle-release-el7
@@ -202,7 +192,7 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 
    
 
-2. From the bastion host, Login to the DBCS.
+2. Login to the DBCS.
 
    ```
    $ sqlplus sys/WElcome_123#@10.0.10.5:1521/ORCL_nrt1dz.sub981952be8.mycluster.oraclevcn.com as sysdba
@@ -257,7 +247,7 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
    SQL> 
    ```
 
-   
+   The database is successfully register to the CMAN.
 
    
 
@@ -363,9 +353,9 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
    vi ./examples/ords/configmaps/credentials
    ```
 
-   Copy the credentials content generate in Append3 using password "WElcome_123#".
+   Copy the credentials content which generate in Appendix3 using password "WElcome_123#".
 
-   The file looks like:
+   The file looks like the following, You can copy the content directly to your credentials file.
 
    ```
    admin;{SSHA-512}I9yp9gOvNtML/DfGkz2XHqb/lXbmeryleCLRGPdoDG1r67dKDPxPosgeG57Y08iDbT7JMnmxXNxz3QTAZzgu95fKBqx2P/wx;SQL Administrator,System Administrator
@@ -527,11 +517,10 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
     2020-03-21 04:02:25.710:INFO:oejs.Server:main: Started @9251ms
     ```
 
-    
-15. Test the ORDS. From the bastion host, Connect to PDB1:
+15. Test the ORDS. From the bastion host, Connect to ORCL:
 
     ```
-    [opc@oke-bastion oracle-db-operator]$ sqlplus system/WElcome_123#@10.0.10.5:1521/pdb1.sub981952be8.mycluster.oraclevcn.com
+    [opc@oke-bastion oracle-db-operator]$ sqlplus sys/WElcome_123#@10.0.10.5:1521/ORCL_nrt1dz.sub981952be8.mycluster.oraclevcn.com as sysdba
     
     SQL*Plus: Release 19.0.0.0.0 - Production on Mon Mar 23 11:52:48 2020
     Version 19.5.0.0.0
@@ -549,118 +538,31 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 
     ​    
 
-17. Create a test user, and grant the priviledge 
+17. Copy and run the following SQL Statement to Enable ORDS Database API.
 
     ```
-    CREATE USER testuser1 IDENTIFIED BY WElcome_123#
-      DEFAULT TABLESPACE users QUOTA UNLIMITED ON users;
-      
-    GRANT CREATE SESSION, CREATE TABLE TO testuser1;
-    ```
-
-    
-
-18. Connect database with testuser1.
-
-    ```
-    connect testuser1/WElcome_123#@10.0.10.5:1521/pdb1.sub981952be8.mycluster.oraclevcn.com
+    CREATE USER C##DBAPI_CDB_ADMIN IDENTIFIED BY WElcome_123#;
+    GRANT SYSDBA TO C##DBAPI_CDB_ADMIN CONTAINER = ALL;
     ```
     
     
 
-19. Create a test emp table and insert some records.
-
-    ```
-    CREATE TABLE EMP (
-      EMPNO NUMBER(4,0), 
-      ENAME VARCHAR2(10 BYTE), 
-      JOB VARCHAR2(9 BYTE), 
-      MGR NUMBER(4,0), 
-      HIREDATE DATE, 
-      SAL NUMBER(7,2), 
-      COMM NUMBER(7,2), 
-      DEPTNO NUMBER(2,0), 
-      CONSTRAINT PK_EMP PRIMARY KEY (EMPNO)
-      );
-    
-    insert into EMP (EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) values (7369,'SMITH','CLERK',7902,to_date('17-DEC-80','DD-MON-RR'),800,null,20);
-    insert into EMP (EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) values (7499,'ALLEN','SALESMAN',7698,to_date('20-FEB-81','DD-MON-RR'),1600,300,30);
-    insert into EMP (EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) values (7521,'WARD','SALESMAN',7698,to_date('22-FEB-81','DD-MON-RR'),1250,500,30);
-    insert into EMP (EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) values (7566,'JONES','MANAGER',7839,to_date('02-APR-81','DD-MON-RR'),2975,null,20);
-    insert into EMP (EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) values (7654,'MARTIN','SALESMAN',7698,to_date('28-SEP-81','DD-MON-RR'),1250,1400,30);
-    insert into EMP (EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) values (7698,'BLAKE','MANAGER',7839,to_date('01-MAY-81','DD-MON-RR'),2850,null,30);
-    insert into EMP (EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) values (7782,'CLARK','MANAGER',7839,to_date('09-JUN-81','DD-MON-RR'),2450,null,10);
-    insert into EMP (EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) values (7788,'SCOTT','ANALYST',7566,to_date('19-APR-87','DD-MON-RR'),3000,null,20);
-    insert into EMP (EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) values (7839,'KING','PRESIDENT',null,to_date('17-NOV-81','DD-MON-RR'),5000,null,10);
-    insert into EMP (EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) values (7844,'TURNER','SALESMAN',7698,to_date('08-SEP-81','DD-MON-RR'),1500,0,30);
-    insert into EMP (EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) values (7876,'ADAMS','CLERK',7788,to_date('23-MAY-87','DD-MON-RR'),1100,null,20);
-    insert into EMP (EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) values (7900,'JAMES','CLERK',7698,to_date('03-DEC-81','DD-MON-RR'),950,null,30);
-    insert into EMP (EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) values (7902,'FORD','ANALYST',7566,to_date('03-DEC-81','DD-MON-RR'),3000,null,20);
-    insert into EMP (EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) values (7934,'MILLER','CLERK',7782,to_date('23-JAN-82','DD-MON-RR'),1300,null,10);
-    commit;
-    ```
-
-    
-
-20. Enable the schema for ORDS
-
-    ```
-    BEGIN
-    
-        ORDS.ENABLE_SCHEMA(p_enabled => TRUE,
-                           p_schema => 'TESTUSER1',
-                           p_url_mapping_type => 'BASE_PATH',
-                           p_url_mapping_pattern => 'testuser1',
-                           p_auto_rest_auth => FALSE);
-    
-        commit;
-    
-    END;
-    /
-    ```
-
-    
-
-21. Enable the object.
-
-    ```
-    BEGIN
-    
-        ORDS.ENABLE_OBJECT(p_enabled => TRUE,
-                           p_schema => 'TESTUSER1',
-                           p_object => 'EMP',
-                           p_object_type => 'TABLE',
-                           p_object_alias => 'emp',
-                           p_auto_rest_auth => FALSE);
-    
-        commit;
-    
-    END;
-    /
-    ```
-
-    
-
-22. Exit sqlplus and test the ORDS using the following command:
+22. Exit SQLPLUS. Log into the ords pod(because there is no publice ords service), test the ORDS databse API using the following command:
 
     ```
     [opc@oke-bastion oracle-db-operator]$ kubectl exec -it oracle-db-ords-557d787956-wkmhq bash
-    [oracle@oracle-db-ords-557d787956-wkmhq ~]$ curl http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/
-```
-    
-The result like this:
+    [oracle@oracle-db-ords-557d787956-wkmhq ~]$ curl -u admin:WElcome_123# http://oracle-db-ords:8888/ords/_/db-api/stable/database/pdbs/pdb1/status
+    ```
+
+    The result like this:
     
     ```
-    {"items":[{"empno":7369,"ename":"SMITH","job":"CLERK","mgr":7902,"hiredate":"1980-12-17T00:00:00Z","sal":800,"comm":null,"deptno":20,"links":[{"rel":"self","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/7369"}]},{"empno":7499,"ename":"ALLEN","job":"SALESMAN","mgr":7698,"hiredate":"1981-02-20T00:00:00Z","sal":1600,"comm":300,"deptno":30,"links":[{"rel":"self","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/7499"}]},{"empno":7521,"ename":"WARD","job":"SALESMAN","mgr":7698,"hiredate":"1981-02-22T00:00:00Z","sal":1250,"comm":500,"deptno":30,"links":[{"rel":"self","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/7521"}]},{"empno":7566,"ename":"JONES","job":"MANAGER","mgr":7839,"hiredate":"1981-04-02T00:00:00Z","sal":2975,"comm":null,"deptno":20,"links":[{"rel":"self","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/7566"}]},{"empno":7654,"ename":"MARTIN","job":"SALESMAN","mgr":7698,"hiredate":"1981-09-28T00:00:00Z","sal":1250,"comm":1400,"deptno":30,"links":[{"rel":"self","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/7654"}]},{"empno":7698,"ename":"BLAKE","job":"MANAGER","mgr":7839,"hiredate":"1981-05-01T00:00:00Z","sal":2850,"comm":null,"deptno":30,"links":[{"rel":"self","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/7698"}]},{"empno":7782,"ename":"CLARK","job":"MANAGER","mgr":7839,"hiredate":"1981-06-09T00:00:00Z","sal":2450,"comm":null,"deptno":10,"links":[{"rel":"self","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/7782"}]},{"empno":7788,"ename":"SCOTT","job":"ANALYST","mgr":7566,"hiredate":"1987-04-19T00:00:00Z","sal":3000,"comm":null,"deptno":20,"links":[{"rel":"self","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/7788"}]},{"empno":7839,"ename":"KING","job":"PRESIDENT","mgr":null,"hiredate":"1981-11-17T00:00:00Z","sal":5000,"comm":null,"deptno":10,"links":[{"rel":"self","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/7839"}]},{"empno":7844,"ename":"TURNER","job":"SALESMAN","mgr":7698,"hiredate":"1981-09-08T00:00:00Z","sal":1500,"comm":0,"deptno":30,"links":[{"rel":"self","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/7844"}]},{"empno":7876,"ename":"ADAMS","job":"CLERK","mgr":7788,"hiredate":"1987-05-23T00:00:00Z","sal":1100,"comm":null,"deptno":20,"links":[{"rel":"self","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/7876"}]},{"empno":7900,"ename":"JAMES","job":"CLERK","mgr":7698,"hiredate":"1981-12-03T00:00:00Z","sal":950,"comm":null,"deptno":30,"links":[{"rel":"self","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/7900"}]},{"empno":7902,"ename":"FORD","job":"ANALYST","mgr":7566,"hiredate":"1981-12-03T00:00:00Z","sal":3000,"comm":null,"deptno":20,"links":[{"rel":"self","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/7902"}]},{"empno":7934,"ename":"MILLER","job":"CLERK","mgr":7782,"hiredate":"1982-01-23T00:00:00Z","sal":1300,"comm":null,"deptno":10,"links":[{"rel":"self","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/7934"}]}],"hasMore":false,"limit":25,"offset":0,"count":14,"links":[{"rel":"self","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/"},{"rel":"edit","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/"},{"rel":"describedby","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/metadata-catalog/emp/"},{"rel":"first","href":"http://oracle-db-ords:8888/ords/pdb1/testuser1/emp/"}]}
-```
+    {"inst_id":1,"con_id":3,"name":"PDB1","open_mode":"READ WRITE","restricted":"NO","links":[{"rel":"collection","href":"http://oracle-db-ords:8888/ords/_/db-api/stable/database/pdbs/pdb1/"}]}
+    ```
     
+    The ORDS Database API is ready. If you want to know more about the Rest API for Oracle Database Please refer to the document: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbrst/index.html
 
-    
-The ORDS is ready.
-    
-  
-    
-      
+ 
 
 ## Deploy Oracle Database Operator
 
@@ -670,40 +572,30 @@ The ORDS is ready.
    $ cd /home/opc/oracle-db-operator
    ```
 
-2. Edit *ords-credentials.yaml* file. Use base64 encode the username and password.
+   
+
+2. Edit *ords-credentials.yaml* file. 
 
    ```
-   $ echo C##DBAPI_CDB_ADMIN as SYSDBA|base64
-   QyMjREJBUElfQ0RCX0FETUlOIGFzIFNZU0RCQQo=
-$ echo ORDS_PUBLIC_USER|base64
-   T1JEU19QVUJMSUNfVVNFUgo=
-   $ echo C##DBAPI_CDB_ADMIN|base64
-   QyMjREJBUElfQ0RCX0FETUlOCg==
-   $ echo admin|base64
-YWRtaW4K
-   
-$ echo WElcome_123#|base64
-   V0VsY29tZV8xMjMjCg==
    $ vi ./examples/ords/ords-credentials.yaml
    ```
-   
-   Change the username and password using the base64 result. The file looks like:
+
+   Go to the URL: http://www.base64encode.org, encode the username as **admin**, password as **WElcome_123#**. Update the username and password entry in the file using the base64 encode result. The file looks like:
    
    ```
-   ---
    kind: Secret
-   apiVersion: v1
+      apiVersion: v1
    metadata:
-     name: oracle-ords-credentials
-     namespace: default
-   data:
-     username: QyMjREJBUElfQ0RCX0FETUlOIGFzIFNZU0RCQQo=
-     password: V0VsY29tZV8xMjMjCg==
-   type: Opaque
+        name: oracle-ords-credentials
+        namespace: default
+      data:
+        username: YWRtaW4=
+        password: V0VsY29tZV8xMjMj
+      type: Opaque
    ```
-   
-   
-   
+
+
+
 3. Deploy the credentials:
 
    ```
@@ -719,10 +611,8 @@ $ echo WElcome_123#|base64
    ```
 
    - change ```##DOCKER_REGISTY##``` to ```minqiao```
-   - change ```##PDBNAME##``` to ```mypdb```.
-   - change port from ```8080``` to ```8888```
-   - -----change ```oracle-db-connection-manager-service``` to ```10.0.30.2``` (**Currently my CMAN image not work in kubernetes**)
-   - change DB_FILENAME_CONVERSION_PATTERN from ```/opt/oracle/oradata/ORCLCDB``` to ```/u02/app/oracle/oradata/ORCL_nrt1dz```
+   - change port from ```8080``` to ```8888``` 
+   - change DB_FILENAME_CONVERSION_PATTERN  to **NONE** because it's use Oracle Managed Files.
 
    The file looks like:
 
@@ -785,7 +675,7 @@ $ echo WElcome_123#|base64
            - name: OCM_SERVICE_PORT
              value: "1521"
            - name: DB_FILENAME_CONVERSION_PATTERN
-             value: "('/u02/app/oracle/oradata/ORCL_nrt1dz/pdbseed/','/u02/app/oracle/oradata/ORCL_nrt1dz/mypdb/')"
+             value: "NONE"
            imagePullPolicy: Always
          imagePullSecrets:
            - name: ##DOCKER_SECRET##
@@ -822,19 +712,9 @@ $ echo WElcome_123#|base64
    Operator has started in version 0.0.1-SNAPSHOT.
    ```
 
-   
-
-8. sadf
-
-9. asdf
-
-10. asd
-
      
 
-
-
-## Provision your database through operator
+## Provision a new PDB through operator
 
 1. In the bastion host. Make sure you are under the right directory
 
@@ -862,41 +742,51 @@ $ echo WElcome_123#|base64
 
    
 
-3. asdf
+3. Deploy the service to create a new pdb.
 
    ```
    $ kubectl apply -f examples/cr.yaml
    ```
 
+   Wait some time, you will get the message:
+
+   ```
+   oracleservice.com.oracle/mypdb created
+   ```
+
    
 
-4. sdaf
+4. From the bastion host, log into the database as sysdba:
 
-5. sadf
+   ```
+   $ sqlplus sys/WElcome_123#@10.0.10.5:1521/ORCL_nrt1dz.sub981952be8.mycluster.oraclevcn.com as sysdba
 
-6. asdf
+   SQL*Plus: Release 19.0.0.0.0 - Production on Thu Mar 26 03:21:42 2020
+   Version 19.5.0.0.0
 
-7. asdf
-
-8. asdf
-
-
-
-
-
-
-
-
-
+   Copyright (c) 1982, 2019, Oracle.  All rights reserved.
+   
+   Connected to:
+   Oracle Database 19c EE High Perf Release 19.0.0.0.0 - Production
+   Version 19.6.0.0.0
+   
+   SQL>
+   ```
 
 
 
 
+5. You can see the a PDB named **ORACLE_MYPDB** is created.
 
+   ```
+   SQL> show pdbs
 
-
-
-
-
+       CON_ID CON_NAME			  OPEN MODE  RESTRICTED
+   ---------- ------------------------------ ---------- ----------
+   	 2 PDB$SEED			  READ ONLY  NO
+   	 3 PDB1 			  READ WRITE NO
+   	 4 ORACLE_MYPDB 		  READ WRITE NO
+   
+   ```
 
 

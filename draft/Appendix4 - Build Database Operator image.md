@@ -40,11 +40,12 @@ You need a Docker Account (hub.docker.com) before push the docker image to the r
    docker build -t minqiao/oracle-db-operator:1.0.4 -f Dockerfile .
    ```
 
-8. List the docker image that you just build.
+6. List the docker image that you just build.
 
    ```
    [opc@oke-bastion 19.3.0]$ docker image ls
    REPOSITORY          TAG                 IMAGE ID            CREATED              SIZE
+   minqiao/oracle-db-operator   1.0.4               12de2f08a927        6 days ago          304MB
    minqiao/cman        19.3.0              8f750ff8b71e        About a minute ago   3.53GB
    oraclelinux         7-slim              fd84774952b5        7 days ago           118MB
    [opc@oke-bastion 19.3.0]$ 
