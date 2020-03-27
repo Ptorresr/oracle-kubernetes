@@ -22,23 +22,46 @@ A full architecture could be the one presented in this diagram:
 
  
 
- 
+ Option A.
 
-2. Create a DBCS VM into the exist private subnet: oke-subnet-quick-mycluster...
+1. Create a DBCS VM into the exist private subnet: oke-subnet-quick-...
 
-3. Write down the DBCS information like:
+2. Write down the DBCS information like:
 
-   Private IP address: *10.0.10.5*
+   - Private IP address: *10.0.10.5*
 
-   DB Hostname: *dbcs.sub981952be8.mycluster.oraclevcn.com*
+   - DB Hostname: *dbcs.sub981952be8.mycluster.oraclevcn.com*
 
-   CDB service: *ORCL_nrt1dz.sub981952be8.mycluster.oraclevcn.com*
+   - CDB service: *ORCL_nrt1dz.sub981952be8.mycluster.oraclevcn.com*
 
-   PDB service: *pdb1.sub981952be8.mycluster.oraclevcn.com*
+   - PDB service: *pdb1.sub981952be8.mycluster.oraclevcn.com*
+   - Database password: *WElcome_123#*
+
+Option B.
+
+1. Create a custom compute instance using Lab3.5 into the exist private subnet: oke-subnet-quick-...
+
+2. Write down the database information like:
+
+   - Private IP address: *10.0.10.6
+
+   - DB Hostname: *dbserver.sub981952be8.mycluster.oraclevcn.com*
+
+   - CDB service: *ORCL*
+
+   - PDB service: *orclpdb*
+   - Database password: *Ora_DB4U*
+
+
 
    
 
    
+
+   
+
+   
+
 
 ## Deploy Oracle Connection Manager
 
@@ -192,7 +215,7 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 
    
 
-2. Login to the DBCS.
+2. Login to the DBCS as sysdba.
 
    ```
    $ sqlplus sys/WElcome_123#@10.0.10.5:1521/ORCL_nrt1dz.sub981952be8.mycluster.oraclevcn.com as sysdba
