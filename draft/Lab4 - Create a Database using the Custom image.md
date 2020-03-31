@@ -73,7 +73,7 @@
 14. Test the database.
 
     ```
-    [opc@oke-bastion ~]$ sqlplus system/Ora_DB4U@10.0.10.6:1521/orclpdb
+    [opc@oke-bastion ~]$ sqlplus system/Ora_DB4U@10.0.10.6:1521/ORCL
     
     SQL*Plus: Release 19.0.0.0.0 - Production on Fri Mar 27 07:54:54 2020
     Version 19.5.0.0.0
@@ -85,6 +85,16 @@
     Connected to:
     Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
     Version 19.5.0.0.0
+    
+    SQL> 
+    ```
+
+15. Enable Oracle Managed Files(OMF) for easy datafiles management.
+
+    ```
+    SQL> alter system set db_create_file_dest='/u01/app/oracle/oradata' scope=both;
+    
+    System altered.
     
     SQL> 
     ```

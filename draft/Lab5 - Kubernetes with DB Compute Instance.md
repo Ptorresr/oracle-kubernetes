@@ -550,13 +550,13 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 
     ```
     [opc@oke-bastion oracle-db-operator]$ kubectl exec -it oracle-db-ords-557d787956-wkmhq bash
-    [oracle@oracle-db-ords-557d787956-wkmhq ~]$ curl -u admin:WElcome_123# http://oracle-db-ords:8888/ords/_/db-api/stable/database/pdbs/pdb1/status
+    [oracle@oracle-db-ords-557d787956-wkmhq ~]$ curl -u admin:WElcome_123# http://oracle-db-ords:8888/ords/_/db-api/stable/database/pdbs/orclpdb/status
     ```
 
     The result like this:
     
     ```
-    {"inst_id":1,"con_id":3,"name":"PDB1","open_mode":"READ WRITE","restricted":"NO","links":[{"rel":"collection","href":"http://oracle-db-ords:8888/ords/_/db-api/stable/database/pdbs/pdb1/"}]}
+    {"inst_id":1,"con_id":3,"name":"ORCLPDB","open_mode":"READ WRITE","restricted":"NO","links":[{"rel":"collection","href":"http://oracle-db-ords:8888/ords/_/db-api/stable/database/pdbs/orclpdb/"}]}
     ```
     
     The ORDS Database API is ready. If you want to know more about the Rest API for Oracle Database Please refer to the document: https://docs.oracle.com/en/database/oracle/oracle-database/19/dbrst/index.html
@@ -611,7 +611,7 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 
    - change ```##DOCKER_REGISTY##``` to ```minqiao```
    - change port from ```8080``` to ```8888``` 
-   - change DB_FILENAME_CONVERSION_PATTERN  to ```"('/pdbseed/','/mypdb/')"```.
+   - change DB_FILENAME_CONVERSION_PATTERN  to ```"NONE"``` because we already enable the OMF.
 
    The file looks like:
 
@@ -674,7 +674,7 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
            - name: OCM_SERVICE_PORT
              value: "1521"
            - name: DB_FILENAME_CONVERSION_PATTERN
-             value: "('/pdbseed/','/mypdb/')"
+             value: "NONE"
            imagePullPolicy: Always
          imagePullSecrets:
            - name: ##DOCKER_SECRET##
