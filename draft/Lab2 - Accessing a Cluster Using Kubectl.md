@@ -4,25 +4,39 @@ You can use the Kubernetes command line tool kubectl to perform operations on a 
 
 ##Accessing a Cluster using Cloud Shell
 
-1. In the kubernetes cluster page, click **Access Kubeconfig**.
+1. In the kubernetes cluster page, click **Access Cluster**.
 
-   ![image-20200315115257310](img/image-20200315115257310.png)
+   ![image-20200331141931527](img/image-20200331141931527.png)
 
-2. In the popup window, Click the **Launch Cloud Shell**.
+   
 
-   <img src="img/image-20200315115404733.png" alt="image-20200315115404733" style="zoom:50%;" />
+2. In the popup window, Click **Copy** for the kubeconfig command.
 
-3. The Cloud Shell terminal will appear in the bottom of the page. 
+   ![image-20200331142318757](img/image-20200331142318757.png)
+
+   
+
+3. Click **Cloud Shell** icon in the upper right of the console header.
+
+   ![image-20200331141659222](img/image-20200331141659222.png)
+
+   
+
+4. The Cloud Shell terminal will appear in the bottom of the page. 
 
    ![image-20200315120006098](img/image-20200315120006098.png)
 
-4. Copy the command from the step 2 and execute it.
+   
+
+5. Paste the command from the step 2 and execute it.
 
    ```
    oci ce cluster create-kubeconfig --cluster-id ocid1.cluster.oc1.ap-tokyo-1.aaaaa***gbqt --file $HOME/.kube/config --region ap-tokyo-1 --token-version 2.0.0 
    ```
 
-5. Now you can use the kubectl in Cloud Shell to manage the kubernetes cluster. Try to run the following command.
+   
+
+6. Now you can use the kubectl in Cloud Shell to manage the kubernetes cluster. Try to run the following command:
 
    ```
    $ kubectl version
@@ -36,9 +50,11 @@ You can use the Kubernetes command line tool kubectl to perform operations on a 
    $ 
    ```
 
-##Accessing a Cluster using your own host
 
-In the lab1, we choose private network to deploy the kubernetes cluster, so you can not access the worker nodes directly. In the following steps, we will create a bastion host to use to manage the cluster and access the worker notes.
+
+##Accessing a Cluster using a Bastion Host
+
+In the lab1, we choose private network when deploy the kubernetes cluster, so you can not access the worker nodes directly. In the following steps, we will create a bastion host to use to manage the cluster and access the worker notes.
 
 ### Step1. Provisioning a Compute Instance in the public subnet
 
@@ -54,6 +70,8 @@ In the lab1, we choose private network to deploy the kubernetes cluster, so you 
 
    ![image-20200315151031881](img/image-20200315151031881.png)
 
+   
+
 4. Choose the VCN created in the lab1 by default, which name begin with: *oke-vcn-quick-mycluster-*. Choose the public subnet wich name begin with: *oke-svclbsubnet-quick-mycluster-*. Make sure click the **Assign a Public IP Address**.
 
    ![image-20200315153234345](img/image-20200315153234345.png)
@@ -64,7 +82,9 @@ In the lab1, we choose private network to deploy the kubernetes cluster, so you 
 
 6. Wait until the instance is ready. copy and write down the public ip address.
 
-   ![image-20200315153751650](img/image-20200315153751650.png)
+   ![image-20200331143606969](img/image-20200331143606969.png)
+   
+   
 
 ### Step2. Install and Configure the OCI CLI
 
@@ -196,6 +216,8 @@ In the lab1, we choose private network to deploy the kubernetes cluster, so you 
     [opc@oke-bastion .oci]$ 
     ```
 
+
+
 ### Step3. Install kubectl binary with curl 
 
 1. Download the latest release with the command:
@@ -228,27 +250,27 @@ In the lab1, we choose private network to deploy the kubernetes cluster, so you 
    [opc@oke-bastion ~]$
    ```
 
-5. In the kubernetes cluster page, click **Access Kubeconfig**.
+5. In the kubernetes cluster page, click **Access Cluster**.
 
-   ![image-20200315115257310](img/image-20200315115257310.png)
+   ![image-20200331141931527](img/image-20200331141931527.png)
 
-6. Copy the command the second step.
+   
 
-   <img src="img/image-20200315115404733.png" alt="image-20200315115404733" style="zoom:50%;" />
+6. From the Pop up window, copy and run each of the command in the bastion host.
 
-7. In the Teminal, run this command:
+   <img src="img/image-20200331145342090.png" alt="image-20200331145342090" style="zoom:50%;" />
+
+7. In the bastion host, run these commands like the following:
 
    ```
-   [opc@oke-bastion ~]$ oci ce cluster create-kubeconfig --cluster-id ocid1.cluster.oc1.ap-tokyo-1.aaaaaaaaafrgeyjxgvqtgmjqme4dmnbsha3diztgmy2tkmrqgc3wgmlbgbqt --file $HOME/.kube/config --region ap-tokyo-1 --token-version 2.0.0 
+   [opc@oke-bastion ~]$ mkdir -p $HOME/.kube
+   [opc@oke-bastion ~]$ oci ce cluster create-kubeconfig --cluster-id ocid1.cluster.oc1.ca-toronto-1.aaaaaaaaafqtgzrxgq3geyjzme3wemtbha4giodbgiytamjtmc2gmnlcmeyw --file $HOME/.kube/config --region ca-toronto-1 --token-version 2.0.0 
    New config written to the Kubeconfig file /home/opc/.kube/config
+   [opc@oke-bastion ~]$ export KUBECONFIG=$HOME/.kube/config
    [opc@oke-bastion ~]$
    ```
 
-8. Set the value of the KUBECONFIG environment variable to point to the name and location of the kubeconfig file.
-
-   ```
-   export KUBECONFIG=$HOME/.kube/config
-   ```
+   
 
 9. Now you can access the kubernetes cluster.
 

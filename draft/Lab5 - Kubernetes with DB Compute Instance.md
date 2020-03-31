@@ -63,9 +63,9 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 
    - Change the container image from ```DOCKER_REPO/cman:19.3.0.0``` to ```minqiao/cman:19.3.0```. Ad
 
-   - Change PUBLIC_IP and PUBLIC_HOSTNAME to the dynamic value when the pod startup. Please refer the following file content.
+   - Add env variables PUBLIC_IP and PUBLIC_HOSTNAME to the dynamic value when the pod startup. Please refer the following file content.
 
-   - Change SCAN_NAME and SCAN_IP to the DB hostname without domain(**dbserver**) and IP address(**10.0.10.6**).
+   - Add env variables SCAN_NAME and SCAN_IP to the DB hostname without domain(**dbserver**) and IP address(**10.0.10.6**).
 
    - Add the pod service type: LoadBalancer, so the Public IP can be used by DB  to register.
 
@@ -146,7 +146,7 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
    oracle-db-connection-manager-d474757ff-rhs98   1/1     Running   0          12s
    ```
 
-6. Check the log to see if it start succes.
+6. After the status change to Running, check the log to see if it start succes.
 
    ```
    $ kubectl logs -f oracle-db-connection-manager-d474757ff-rhs98
@@ -166,28 +166,29 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 
 7. Check the Connection Manager Service with the Extenal-IP address. 
 
-   - Service Name: oracle-db-connection-manager-service
-   - External-IP: 168.138.220.146
-- Port: 1521
-   
    ```
    $ kubectl get service
    NAME                                           TYPE           CLUSTER-IP     EXTERNAL-IP       PORT(S)          AGE
    service/kubernetes                             ClusterIP      10.96.0.1      <none>            443/TCP          8d
-   service/oracle-db-connection-manager-service   LoadBalancer   10.96.61.86    168.138.220.146   1521:31388/TCP   5m36s
-```
+    service/oracle-db-connection-manager-service   LoadBalancer   10.96.61.86    168.138.220.146   1521:31388/TCP   5m36s
+   ```
    
+   - Service Name: oracle-db-connection-manager-service
+   - External-IP: 168.138.220.146
+   - Port: 1521
+   
+
    
 
 ## Register Database to the CMAN
 
 1. From bastion host, Install Oracle Instant Client in the bastion if you haven't done this:
 
-   ```
+```
    $ sudo yum install oracle-release-el7
    $ sudo yum list oracle-instantclient*
    $ sudo yum install oracle-instantclient19.3-basic.x86_64 oracle-instantclient19.3-sqlplus.x86_64 oracle-instantclient19.3-tools.x86_64
-   ```
+```
 
    
 
@@ -198,15 +199,15 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
     
    SQL*Plus: Release 19.0.0.0.0 - Production on Tue Mar 24 02:54:38 2020
    Version 19.5.0.0.0
-   
+
    Copyright (c) 1982, 2019, Oracle.  All rights reserved.
-   
+
    Last Successful login time: Mon Mar 23 2020 12:05:08 +00:00
-   
+
    Connected to:
    Oracle Database 19c EE High Perf Release 19.0.0.0.0 - Production
    Version 19.6.0.0.0
-   
+
    SQL> 
    ```
 
@@ -216,13 +217,13 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 
    ```
    SQL> alter system set remote_listener='(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=tcp)(HOST=168.138.220.146)(PORT=1521))))' scope=both;
-   
+
    System altered.
-   
+
    SQL> alter system register;
-   
+
    System altered.
-   
+
    ```
 
    
@@ -231,18 +232,18 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 
    ```
    [opc@oke-bastion ~]$ sqlplus system/Ora_DB4U@168.138.220.146:1521/orclpdb
-   
+
    SQL*Plus: Release 19.0.0.0.0 - Production on Wed Mar 25 02:51:14 2020
    Version 19.5.0.0.0
-   
+
    Copyright (c) 1982, 2019, Oracle.  All rights reserved.
-   
+
    Last Successful login time: Wed Mar 25 2020 02:50:12 +00:00
-   
+
    Connected to:
    Oracle Database 19c EE High Perf Release 19.0.0.0.0 - Production
    Version 19.6.0.0.0
-   
+
    SQL> 
    ```
 
@@ -275,7 +276,7 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
    <comment>Saved on Fri Aug 23 11:24:16 GMT 2019</comment>
    <entry key="db.password">!Ora_DB4U</entry>
    <entry key="db.username">ORDS_PUBLIC_USER</entry>
-   
+
    </properties>
    ```
 
@@ -309,7 +310,7 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 
    - change ```##ORDS_PASSWORD##``` to ```Ora_DB4U```.
    - change ```##DATABASE_CDB_SERVICE_NAME##``` to ```ORCL```.
-   - change db hostname from  ```oracle-db-enterprise``` to ```dbcs.sub981952be8.mycluster.oraclevcn.com```
+   - change db hostname from  ```oracle-db-enterprise``` to ```dbserver.sub981952be8.mycluster.oraclevcn.com```
 
    The file looks like:
 
@@ -354,7 +355,7 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 
    Copy the credentials content which generate in Appendix3 using password "WElcome_123#".
 
-   The file looks like the following, You can copy the content directly to your credentials file.
+   The file looks like the following, You can copy and update the content directly to your credentials file.
 
    ```
    admin;{SSHA-512}I9yp9gOvNtML/DfGkz2XHqb/lXbmeryleCLRGPdoDG1r67dKDPxPosgeG57Y08iDbT7JMnmxXNxz3QTAZzgu95fKBqx2P/wx;SQL Administrator,System Administrator
@@ -372,7 +373,7 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
    $ vi ./examples/ords/ords-persistent-storage.yaml
    ```
 
-   Change the *storageClassName* to *oci*, the file looks like:
+   Change the *storageClassName* to *"oci"*, the file looks like:
 
    ```
    apiVersion: v1
@@ -758,7 +759,7 @@ Deploy the Oracle Connection Manager, You will use a CMAN image in the docker hu
 4. From the bastion host, log into the database as sysdba:
 
    ```
-   $ sqlplus sys/Ora_DB4U@10.0.10.6:1521/ORCL
+   $ sqlplus sys/Ora_DB4U@10.0.10.6:1521/ORCL as sysdba
 
    SQL*Plus: Release 19.0.0.0.0 - Production on Thu Mar 26 03:21:42 2020
    Version 19.5.0.0.0

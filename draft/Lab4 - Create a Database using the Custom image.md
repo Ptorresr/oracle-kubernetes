@@ -24,6 +24,8 @@
 
 6. Choose the VCN and the private subnet(*oke-subnet-quick-...*) same as the kubernetes cluster.
 
+   <img src="img/image-20200331150421977.png" alt="image-20200331150421977" style="zoom:50%;" />
+
 7. Add SSH Public Key, so the Database Host can by access by bastion host.
 
 8. Click on **Show Advanced Options**. Choose the correct compartment. Click on the **Choose Cloud-Init Script File**. Click **browse**.![image-20200327114627886](img/image-20200327114627886.png)
@@ -33,6 +35,8 @@
    <img src="img/image-20200327114942460.png" alt="image-20200327114942460" style="zoom:50%;" />
 
 10. Click the **Create** button to create your instance. Your instance will be in the provisioning state for about 5 minutes. Verify that you chose the correct image. In a few minutes you can also verify that you have a public IP address. View the Work Requests at the bottom, this will show where your instance is.![image-20200327115120107](img/image-20200327115120107.png)
+
+   
 
 11. Once the instance moves to the `Running` state, You can ssh access the dbserver from your bastion server. You need wait more time about 15 minutes until the database setup is ready. You can write down the information of your dbserver. For example:
 
@@ -46,7 +50,17 @@
     - PDB Servicename: orclpdb
     - password: Ora_DB4U
 
-12. From the bastion host, log into the database server, open the 1521 port
+    
+
+12. Copy the SSH private Key to your bastion host, for example:
+
+    ```
+    $ scp -i labkey labkey opc@132.145.111.88:~
+    ```
+
+    
+
+13. From the bastion host, log into the database server, open the 1521 port:
 
     ```
     [opc@oke-bastion ~]$ ssh -i labkey opc@10.0.10.6
@@ -57,10 +71,16 @@
     success
     [opc@dbserver ~]$ exit
     ```
+
     
+
+14. From the OCI Console, add a new ingress rule in the security list for the private subnet.
+
+    <img src="img/image-20200331160042395.png" alt="image-20200331160042395" style="zoom:50%;" />
+
     
-    
-13. Exit to the bastion host, install oracle instant client.
+
+15. Exit to the bastion host, install oracle instant client.
 
     ```
     $ sudo yum install oracle-release-el7
@@ -70,7 +90,7 @@
 
      
 
-14. Test the database.
+16. When the database creation is ready, you can test to connect the database.
 
     ```
     [opc@oke-bastion ~]$ sqlplus system/Ora_DB4U@10.0.10.6:1521/ORCL
@@ -89,7 +109,9 @@
     SQL> 
     ```
 
-15. Enable Oracle Managed Files(OMF) for easy datafiles management.
+    
+
+17. Enable Oracle Managed Files(OMF) for easy datafiles management.
 
     ```
     SQL> alter system set db_create_file_dest='/u01/app/oracle/oradata' scope=both;
