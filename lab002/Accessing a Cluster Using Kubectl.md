@@ -289,11 +289,11 @@ In the lab1, we choose private network when deploy the kubernetes cluster, so yo
 
 1. From the OCI console, click in to the kubernetes cluster detail page, click the **Access Kubernetes Dashboard** under the **Resources**.
 
-   ![image-20200513140054417](images/image-20200513140054417.png)
+   ![](./images/image-20200513140054417.png " ")
 
 2. There uppear the steps to setup Kubernetes Dashboard. In the following steps, we will follow the steps.
 
-   ![image-20200513140253808](images/image-20200513140253808.png)
+   ![](./images/image-20200513140253808.png " ")
 
 3. From your own laptop, connect the bastion host using the ssh command if you use Mac or Linux, this will create a port forwarding tunnel on port 8001. (Using putty in Windows to create the same port tunnel).
 
@@ -386,10 +386,10 @@ In the lab1, we choose private network when deploy the kubernetes cluster, so yo
 
 9. In the Kubernetes Dashboard, select **Token** and paste the value of the *token:* element you copied earlier into the **Token** field. Click **SIGN IN**.
 
-   ![image-20200513142027751](images/image-20200513142027751.png)
+   ![](./images/image-20200513142027751.png " ")
 
 10. Now you can see the applications deployed on the cluster in the dashboard.
 
-    ![image-20200513142127126](images/image-20200513142127126.png)
+    ![](./images/image-20200513142127126.png " ")
 
    
