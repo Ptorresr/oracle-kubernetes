@@ -18,15 +18,15 @@ In this lab, you will learn how to create a Kubernetes Cluster and deploy applic
 
 1. Log in the OCI Console, open the navigation menu. Under **Solutions and Platform**, go to **Developer Services** and click **Container Clusters(OKE)**.
 
-   <img src="img/image-20200315103555207.png" alt="image-20200315103555207" style="zoom:40%;" />
+   <img src="images/image-20200315103555207.png" alt="image-20200315103555207" style="zoom:40%;" />
 
 2. Choose a **Compartment** you have permission to work in. On the **Cluster List** page, click **Create Cluster**.
 
-   ![image-20200315103901086](img/image-20200315103901086.png)
+   ![image-20200315103901086](images/image-20200315103901086.png)
 
 3. In the **Create Cluster Solution** dialog, select **Quick Create** and click **Launch Workflow**.
 
-   <img src="img/image-20200315104050115.png" alt="image-20200315104050115" style="zoom:50%;" />
+   <img src="images/image-20200315104050115.png" alt="image-20200315104050115" style="zoom:50%;" />
 
 4. On the **Create Cluster** page, either just accept the default configuration details for the new cluster, or specify alternatives as follows:
 
@@ -37,35 +37,35 @@ In this lab, you will learn how to create a Kubernetes Cluster and deploy applic
    - **Shape:** VM.Standard2.1
    - **Number of Nodes:** Accept the default value: 3
 
-   ![image-20200315105017321](img/image-20200315105017321.png)
+   ![image-20200315105017321](images/image-20200315105017321.png)
 
 5. Click **Show Advanced Options**, copy and paste the SSH public Key which you prepared before. The public key is installed on all worker nodes in the cluster. You will  have SSH access to the worker nodes with the SSH key pair.
 
-   ![image-20200315105438540](img/image-20200315105438540.png)
+   ![image-20200315105438540](images/image-20200315105438540.png)
 
 6. Enable Kubernetes Dashboard and Tiller (Helm) so you can use to manage the kubernetes resources.
 
-   ![image-20200315110351512](img/image-20200315110351512.png)
+   ![image-20200315110351512](images/image-20200315110351512.png)
 
 7. Click **Next** to review the details you entered for the new cluster.
 
-   ![image-20200315110503138](img/image-20200315110503138.png)
+   ![image-20200315110503138](images/image-20200315110503138.png)
 
 8. Click **Create Cluster** to create the new network resources and the new cluster.
 
-   <img src="img/image-20200315110709142.png" alt="image-20200315110709142" style="zoom:50%;" />
+   <img src="images/image-20200315110709142.png" alt="image-20200315110709142" style="zoom:50%;" />
 
 9. Click **Close** to return to the Console.
 
-   ![image-20200315110911196](img/image-20200315110911196.png)
+   ![image-20200315110911196](images/image-20200315110911196.png)
 
 10. Initially, the new cluster appears in the Console with a status of Creating. When the cluster has been created, it has a status of Active.
 
-    ![image-20200315111158001](img/image-20200315111158001.png)
+    ![image-20200315111158001](images/image-20200315111158001.png)
 
 11. After the all the **Compute Instance State** change to **Active**, your kubernetes cluster is ready. Container Engine for Kubernetes also creates a Kubernetes kubeconfig configuration file that you use to access the cluster using kubectl and the Kubernetes Dashboard.
 
-    ![image-20200315111711465](img/image-20200315111711465.png)
+    ![image-20200315111711465](images/image-20200315111711465.png)
 
     
 

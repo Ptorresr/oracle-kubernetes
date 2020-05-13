@@ -1,0 +1,39 @@
+{
+    "tutorials": [
+        {
+            "title": "Workshop Overview",
+            "description":"Workhop Overview",
+            "publisheddate": "04/10/2020",
+            "filename":"./about-the-workshop/content.md"
+        },
+        {
+            "title": "Lab1: Create a Kubernetes Cluster",
+            "description":"Create a Kubernetes Cluster",
+            "publisheddate": "04/10/2020",
+            "filename":"./lab001/Create a Kubernetes Cluster.md"
+        },
+        {
+            "title": "Lab2: Accessing a Cluster Using Kubectl",
+            "description":"Accessing a Cluster Using Kubectl",
+            "publisheddate": "04/10/2020",
+            "filename":"./lab002/Accessing a Cluster Using Kubectl.md"
+        },
+        {
+            "title": "Lab3: Deploy a Sample Ngnix App",
+            "description":"Deploy a Sample Ngnix App",
+            "publisheddate": "04/10/2020",
+            "filename":"./lab003/Deploy a Sample Ngnix App.md"
+        },
+        {
+            "title": "Lab4: Create a Database using the Custom image",
+            "description":"Create a Database using the Custom image",
+            "publisheddate": "04/10/2020",
+            "filename":"./lab004/Create a Database using the Custom image.md"
+        },        {
+            "title": "Lab5: Kubernetes with DB Compute Instance",
+            "description":"Kubernetes with DB Compute Instance",
+            "publisheddate": "04/10/2020",
+            "filename":"./lab005/Kubernetes with DB Compute Instance.md"
+        }
+    ]
+}
