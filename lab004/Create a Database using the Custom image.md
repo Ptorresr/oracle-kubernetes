@@ -14,27 +14,32 @@
 
 1. From OCI console, create a Compute Instance named **dbserver**.
 
-2. Click Change Image, and select Oracle Images. Click the down arrow to select the database version.![image-20200327113751359](images/image-20200327113751359.png)
+2. Click Change Image, and select Oracle Images. Click the down arrow to select the database version.
+![](./images/image-20200327113751359.png " ")
 
-3. Select the 19c version from the image build.<img src="images/image-20200327113859165.png" alt="image-20200327113859165" style="zoom:50%;" />
+3. Select the 19c version from the image build.
+![](./images/image-20200327113859165.png " ")
 
-4. Scroll down, accept the standards and conditions and click the **Select Image** button.![image-20200327114104402](images/image-20200327114104402.png)
+4. Scroll down, accept the standards and conditions and click the **Select Image** button.
+![](./images/image-20200327114104402.png " ")
 
 5. Change VM Shape to VM.Standard2.2
 
 6. Choose the VCN and the private subnet(*oke-subnet-quick-...*) same as the kubernetes cluster.
 
-   <img src="images/image-20200331150421977.png" alt="image-20200331150421977" style="zoom:50%;" />
+   ![](./images/image-20200331150421977.png " ")
 
 7. Add SSH Public Key, so the Database Host can by access by bastion host.
 
-8. Click on **Show Advanced Options**. Choose the correct compartment. Click on the **Choose Cloud-Init Script File**. Click **browse**.![image-20200327114627886](images/image-20200327114627886.png)
+8. Click on **Show Advanced Options**. Choose the correct compartment. Click on the **Choose Cloud-Init Script File**. Click **browse**.
+![](./images/image-20200327114627886.png " ")
 
 9. Select the extracted `StandardIO-cloud-init` script. There are multiple scripts dependent on the shape you want. For this lab, we will be using the Standard IO.
 
-   <img src="images/image-20200327114942460.png" alt="image-20200327114942460" style="zoom:50%;" />
+   ![](./images/image-20200327114942460.png " ")
 
-10. Click the **Create** button to create your instance. Your instance will be in the provisioning state for about 5 minutes. Verify that you chose the correct image. In a few minutes you can also verify that you have a public IP address. View the Work Requests at the bottom, this will show where your instance is.![image-20200327115120107](images/image-20200327115120107.png)
+10. Click the **Create** button to create your instance. Your instance will be in the provisioning state for about 5 minutes. Verify that you chose the correct image. In a few minutes you can also verify that you have a public IP address. View the Work Requests at the bottom, this will show where your instance is.
+![](./images/image-20200327115120107.png " ")
 
    
 
@@ -76,7 +81,7 @@
 
 14. From the OCI Console, add a new ingress rule in the security list for the private subnet.
 
-    <img src="images/image-20200331160042395.png" alt="image-20200331160042395" style="zoom:50%;" />
+    ![](./images/image-20200331160042395.png " ")
 
     
 

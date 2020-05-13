@@ -81,19 +81,19 @@ Having created a Kubernetes cluster using Container Engine for Kubernetes, you'l
 
 6. Now open a new browser page, enter the url `http://168.138.219.76`, you can see the Ngnix app is sucessfully working.
 
-   ![image-20200316105543721](images/image-20200316105543721.png)
+   ![](./images/image-20200316105543721.png " ")
 
 7. In the OCI console, open the navigation menu, select **Networking**, then select **Load Balancers**.
 
-   <img src="images/image-20200316103914685.png" alt="image-20200316103914685" style="zoom:50%;" />
+   ![](./images/image-20200316103914685.png " ")
 
 8. In the Load Balancers page, you can found a load balancer created by kubectl. 
 
-   ![image-20200316104811472](images/image-20200316104811472.png)
+   ![](./images/image-20200316104811472.png " ")
 
 9. Click the load balancer name link, and go to the details page. The load balancer is deploy in the public subnet.
 
-   ![image-20200316105019492](images/image-20200316105019492.png)
+   ![](./images/image-20200316105019492.png " ")
 
 10. you can use the following command to delete the Ngnix appliation and Load Balancer service.
 

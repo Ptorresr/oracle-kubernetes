@@ -6,25 +6,25 @@ You can use the Kubernetes command line tool kubectl to perform operations on a 
 
 1. In the kubernetes cluster page, click **Access Cluster**.
 
-   ![image-20200331141931527](images/image-20200331141931527.png)
+   ![](./images/image-20200331141931527.png " ")
 
    
 
 2. In the popup window, Click **Copy** for the kubeconfig command.
 
-   ![image-20200331142318757](images/image-20200331142318757.png)
+   ![](./images/image-20200331142318757.png " ")
 
    
 
 3. Click **Cloud Shell** icon in the upper right of the console header.
 
-   ![image-20200331141659222](images/image-20200331141659222.png)
+   ![](./images/image-20200331141659222.png " ")
 
    
 
 4. The Cloud Shell terminal will appear in the bottom of the page. 
 
-   ![image-20200315120006098](images/image-20200315120006098.png)
+   ![](./images/image-20200315120006098.png " ")
 
    
 
@@ -60,29 +60,29 @@ In the lab1, we choose private network when deploy the kubernetes cluster, so yo
 
 1. In the OCI Console, open the navigation menu. Under **Core Infrastructure**, go to **Compute** and click **Instances**.
 
-   <img src="images/image-20200315150424296.png" alt="image-20200315150424296" style="zoom:50%;" />
+   ![](./images/image-20200315150424296.png " ")
 
 2. Make sure you are in the correct region and compartment. Click **Create Instance**
 
-   ![image-20200315150840260](images/image-20200315150840260.png)
+   ![](./images/image-20200315150840260.png " ")
 
 3. In the Create Compute Instance page, name your instance like: *OKE-bastion*, accept the default **Image Source, AD, Instance Type** and **Shape**.
 
-   ![image-20200315151031881](images/image-20200315151031881.png)
+   ![](./images/image-20200315151031881.png " ")
 
    
 
 4. Choose the VCN created in the lab1 by default, which name begin with: *oke-vcn-quick-mycluster-*. Choose the public subnet wich name begin with: *oke-svclbsubnet-quick-mycluster-*. Make sure click the **Assign a Public IP Address**.
 
-   ![image-20200315153234345](images/image-20200315153234345.png)
+   ![](./images/image-20200315153234345.png " ")
 
 5. Browse and select the SSH public key you prepared before, and click **Create**.
 
-   ![image-20200315152039179](images/image-20200315152039179.png)
+   ![](./images/image-20200315152039179.png " ")
 
 6. Wait until the instance is ready. copy and write down the public ip address.
 
-   ![image-20200331143606969](images/image-20200331143606969.png)
+   ![](./images/image-20200331143606969.png " ")
    
    
 
@@ -196,15 +196,15 @@ In the lab1, we choose private network when deploy the kubernetes cluster, so yo
 
 7. In the OCI Console page, click the upper right **Profile** and **User Settings**
 
-   <img src="images/image-20200315161517075.png" alt="image-20200315161517075" style="zoom:50%;" />
+   ![](./images/image-20200315161517075.png " ")
 
 8. Under the **Resources**, choose **API Keys**, and click **Add Public Key**.
 
-   <img src="images/image-20200315202717122.png" alt="image-20200315202717122" style="zoom:40%;" />
+   ![](./images/image-20200315202717122.png " ")
 
 9. Choose **Paste Public Keys**, and paste the content of the public key, click **Add**.
 
-   <img src="images/image-20200315202956897.png" alt="image-20200315202956897" style="zoom:40%;" />
+   ![](./images/image-20200315202956897.png " ")
 
 10. Back to the Termial and test OCI CLI.
 
@@ -252,13 +252,13 @@ In the lab1, we choose private network when deploy the kubernetes cluster, so yo
 
 5. In the kubernetes cluster page, click **Access Cluster**.
 
-   ![image-20200331141931527](images/image-20200331141931527.png)
+   ![](./images/image-20200331141931527.png " ")
 
    
 
 6. From the Pop up window, copy and run each of the command in the bastion host.
 
-   <img src="images/image-20200331145342090.png" alt="image-20200331145342090" style="zoom:50%;" />
+   ![](./images/image-20200331145342090.png " ")
 
 7. In the bastion host, run these commands like the following:
 
