@@ -12,7 +12,7 @@ The operator creates a secret containing all the info for the connection, the vi
 
 A full architecture could be the one presented in this diagram:
 
-![architecture](images/architecture.png)
+![](./images/architecture.png " ")
 
 ## Workshop Requirements
 
