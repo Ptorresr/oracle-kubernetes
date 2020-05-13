@@ -283,6 +283,113 @@ In the lab1, we choose private network when deploy the kubernetes cluster, so yo
    [opc@oke-bastion ~]$ 
    ```
 
+
+
+## Accessing the Kubernetes Dashboard
+
+1. From the OCI console, click in to the kubernetes cluster detail page, click the **Access Kubernetes Dashboard** under the **Resources**.
+
+   ![image-20200513140054417](images/image-20200513140054417.png)
+
+2. There uppear the steps to setup Kubernetes Dashboard. In the following steps, we will follow the steps.
+
+   ![image-20200513140253808](images/image-20200513140253808.png)
+
+3. From your own laptop, connect the bastion host using the ssh command if you use Mac or Linux, this will create a port forwarding tunnel on port 8001. (Using putty in Windows to create the same port tunnel).
+
+   ```
+   ssh -i labkey -L 8001:localhost:8001 opc@xxx.xxx.xxx.xxx
+   ```
+
    
+
+4. In a text editor, create a file named *oke-admin-service-account.yaml* with the following content:
+
+   ```
+   apiVersion: v1
+   kind: ServiceAccount
+   metadata:
+     name: oke-admin
+     namespace: kube-system
+   ---
+   apiVersion: rbac.authorization.k8s.io/v1beta1
+   kind: ClusterRoleBinding
+   metadata:
+     name: oke-admin
+   roleRef:
+     apiGroup: rbac.authorization.k8s.io
+     kind: ClusterRole
+     name: cluster-admin
+   subjects:
+   - kind: ServiceAccount
+     name: oke-admin
+     namespace: kube-system
+   ```
+
+   
+
+5. Create the service account and the clusterrolebinding in the cluster by entering the following command:
+
+   ```
+   $ kubectl apply -f oke-admin-service-account.yaml
+   ```
+
+   The output from the above command confirms the creation of the service account and the clusterrolebinding:
+
+   ```
+   serviceaccount "oke-admin" created
+   clusterrolebinding.rbac.authorization.k8s.io "oke-admin" created
+   ```
+
+   
+
+6. Obtain an authentication token for the oke-admin service account by entering:
+
+   ```
+   $ kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep oke-admin | awk '{print $1}')
+   ```
+
+   The output from the above command includes an authentication token (a long alphanumeric string) as the value of the *token*, element, as shown below:
+
+   ```
+   Name:         oke-admin-token-gwbp2
+   Namespace:    kube-system
+   Labels:       <none>
+   Annotations:  kubernetes.io/service-account.name: oke-admin
+   kubernetes.io/service-account.uid: 3a7fcd8e-e123-11e9-81ca-0a580aed8570
+   Type:  kubernetes.io/service-account-token
+   Data
+   ====
+   ca.crt:     1289 bytes
+   namespace:  11 bytes
+   token:      eyJh______px1Q
+   ```
+
+   Copy the value of the *token* element from the output. You will use this token to connect to the dashboard.
+
+7. Enter *kubectl proxy* to start the Kubernetes Dashboard. (Ctrl+c to stop the dashboard services).
+
+   ```
+   [opc@oke-bastion ~]$ kubectl proxy
+   Starting to serve on 127.0.0.1:8001
+   ```
+
+   
+
+8. In you own labtop, open a browser and go to the following url to display the Kubernetes Dashboard.
+
+   ```
+   http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login
+   ```
+
+   
+
+9. In the Kubernetes Dashboard, select **Token** and paste the value of the *token:* element you copied earlier into the **Token** field. Click **SIGN IN**.
+
+   ![image-20200513142027751](images/image-20200513142027751.png)
+
+10. Now you can see the applications deployed on the cluster in the dashboard.
+
+    ![image-20200513142127126](images/image-20200513142127126.png)
 
    
