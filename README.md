@@ -19,7 +19,9 @@ A full architecture could be the one presented in this diagram:
 - An OCI account with proper priviledge to access the object storage in OCI.
 - OCIDs for tenancy, user and compartment
 
+## Access the Labs Using Our Web Interface
 
+**[Click here](https://minqiao.github.io/oracle-kubernetes)** to use our easy to navigate HTML format.
 
 ## Access the labs ##
 
