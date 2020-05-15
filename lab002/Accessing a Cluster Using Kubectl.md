@@ -390,6 +390,6 @@ In the lab1, we choose private network when deploy the kubernetes cluster, so yo
 
 10. Now you can see the applications deployed on the cluster in the dashboard.
 
-    ![](./images/image-20200513142127126.png " ")
+    ![](./images/image-20200515202309854.png " ")
 
    
